@@ -1,3 +1,5 @@
 {
-  "item.eye_with_legs.eye_with_legs_spawn_egg": "Eye With Legs Spawn Egg"
+  "entity.eye_with_legs.eye_with_legs": "Eye With Legs",
+  "item.eye_with_legs.eye_with_legs_spawn_egg": "Eye With Legs Spawn Egg",
+  "creativetab.eye_with_legs_tab": "Eye With Legs"
 }

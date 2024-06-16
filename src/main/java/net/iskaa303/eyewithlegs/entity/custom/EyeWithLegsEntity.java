@@ -1,10 +1,11 @@
 package net.iskaa303.eyewithlegs.entity.custom;
 
-import net.iskaa303.eyewithlegs.EyeWithLegs;
-import net.iskaa303.eyewithlegs.entity.ModEntities;
 import net.iskaa303.eyewithlegs.entity.ai.goal.EyeWithLegsAttackGoal;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.DifficultyInstance;
@@ -15,7 +16,6 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
 import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
-import net.minecraft.world.entity.ai.goal.ZombieAttackGoal;
 import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.animal.Animal;
@@ -23,19 +23,27 @@ import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.pathfinder.BlockPathTypes;
+import net.minecraftforge.registries.RegistryObject;
 
 import javax.annotation.Nullable;
 
+
 public class EyeWithLegsEntity extends Monster
 {
+    private static final EntityDataAccessor<Boolean> ATTACKING =
+            SynchedEntityData.defineId(EyeWithLegsEntity.class, EntityDataSerializers.BOOLEAN);
+
     public EyeWithLegsEntity(EntityType<? extends Monster> pEntityType, Level pLevel) {
         super(pEntityType, pLevel);
     }
 
     public final AnimationState idleAnimationState = new AnimationState();
     private int idleAnimationTimeout = 0;
+
+    public final AnimationState attackAnimationState = new AnimationState();
+    public int attackAnimationTimeout = 0;
 
     @Override
     public void tick() {
@@ -53,6 +61,17 @@ public class EyeWithLegsEntity extends Monster
         } else {
             --this.idleAnimationTimeout;
         }
+
+        if (this.isAttacking() && attackAnimationTimeout <= 0) {
+            attackAnimationTimeout = 10; // Length in ticks of animation
+            attackAnimationState.start(this.tickCount);
+        } else {
+            --this.attackAnimationTimeout;
+        }
+
+        if (!this.isAttacking()) {
+            attackAnimationState.stop();
+        }
     }
 
     @Override
@@ -67,8 +86,22 @@ public class EyeWithLegsEntity extends Monster
         this.walkAnimation.update(f, 0.2f);
     }
 
+    public void setAttacking(boolean pIsAttacking) {
+        this.entityData.set(ATTACKING, pIsAttacking);
+    }
+
+    public boolean isAttacking() {
+        return this.entityData.get(ATTACKING);
+    }
+
+    @Override
+    protected void defineSynchedData() {
+        super.defineSynchedData();
+        this.entityData.define(ATTACKING, false);
+    }
+
     protected void registerGoals() {
-        this.goalSelector.addGoal(2, new EyeWithLegsAttackGoal(this, 1.0, false));
+        this.goalSelector.addGoal(2, new EyeWithLegsAttackGoal(this, 1.0, true));
         this.goalSelector.addGoal(6, new LookAtPlayerGoal(this, Player.class, 16.0F));
         this.goalSelector.addGoal(6, new RandomLookAroundGoal(this));
         this.goalSelector.addGoal(7, new WaterAvoidingRandomStrollGoal(this, 1.0));
@@ -121,12 +154,16 @@ public class EyeWithLegsEntity extends Monster
         return MobType.UNDEAD;
     }
 
-
-
-    @Nullable
     public SpawnGroupData finalizeSpawn(ServerLevelAccessor pLevel, DifficultyInstance pDifficulty, MobSpawnType pReason, @Nullable SpawnGroupData pSpawnData, @Nullable CompoundTag pDataTag) {
-        pSpawnData = super.finalizeSpawn(pLevel, pDifficulty, pReason, pSpawnData, pDataTag);
+        return super.finalizeSpawn(pLevel, pDifficulty, pReason, pSpawnData, pDataTag);
+    }
 
-        return pSpawnData;
+    @Override
+    public void die(DamageSource cause) {
+        super.die(cause);
+        if (!this.level().isClientSide) {
+            BlockPos deathPos = this.blockPosition();
+            this.level().setBlock(deathPos, Blocks.WATER.defaultBlockState(), 3);
+        }
     }
 }

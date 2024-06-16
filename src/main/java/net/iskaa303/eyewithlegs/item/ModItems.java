@@ -14,8 +14,8 @@ public class ModItems {
             DeferredRegister.create(ForgeRegistries.ITEMS, EyeWithLegs.MOD_ID);
 
     public static final RegistryObject<Item> EYE_WITH_LEGS_SPAWN_EGG = ITEMS.register("eye_with_legs_spawn_egg",
-            () -> new ForgeSpawnEggItem(ModEntities.EYE_WITH_LEGS, 0x7e9680, 0xc5d1c5,
-                    new Item.Properties()));
+            () -> new ForgeSpawnEggItem(ModEntities.EYE_WITH_LEGS, 0xFFF2CF, 0x210000,
+                    new Item.Properties().stacksTo(64)));
 
     public static void register(IEventBus eventBus) {
         ITEMS.register(eventBus);

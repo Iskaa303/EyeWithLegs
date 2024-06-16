@@ -3,9 +3,12 @@ package net.iskaa303.eyewithlegs;
 import com.mojang.logging.LogUtils;
 import net.iskaa303.eyewithlegs.entity.ModEntities;
 import net.iskaa303.eyewithlegs.entity.client.EyeWithLegsRenderer;
+import net.iskaa303.eyewithlegs.event.PhantomSpawnHandler;
 import net.iskaa303.eyewithlegs.item.ModCreativeModTabs;
 import net.iskaa303.eyewithlegs.item.ModItems;
 import net.minecraft.client.renderer.entity.EntityRenderers;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.monster.Monster;
@@ -13,6 +16,8 @@ import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.capabilities.CapabilityManager;
+import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -46,6 +51,7 @@ public class EyeWithLegs {
         ModEntities.register(modEventBus);
 
         MinecraftForge.EVENT_BUS.register(this);
+        MinecraftForge.EVENT_BUS.register(PhantomSpawnHandler.class);
         modEventBus.addListener(this::addCreative);
 
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.SPEC);

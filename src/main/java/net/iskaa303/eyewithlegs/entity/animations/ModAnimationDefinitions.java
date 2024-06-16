@@ -139,7 +139,7 @@ public class ModAnimationDefinitions
                                     AnimationChannel.Interpolations.LINEAR),
                             new Keyframe(2f, KeyframeAnimations.degreeVec(0f, 0f, 0f),
                                     AnimationChannel.Interpolations.LINEAR))).build();
-    public static final AnimationDefinition BITE = AnimationDefinition.Builder.withLength(0.3433333f)
+    public static final AnimationDefinition BITE = AnimationDefinition.Builder.withLength(0.5f)
             .addAnimation("upper_jaw",
                     new AnimationChannel(AnimationChannel.Targets.POSITION,
                             new Keyframe(0f, KeyframeAnimations.posVec(0f, 0f, 0f),

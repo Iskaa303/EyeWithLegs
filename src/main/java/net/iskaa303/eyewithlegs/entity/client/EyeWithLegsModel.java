@@ -60,6 +60,7 @@ public class EyeWithLegsModel<T extends Entity> extends HierarchicalModel<T> {
 
 		this.animateWalk(ModAnimationDefinitions.RUN, limbSwing, limbSwingAmount, 2f, 2.5f);
 		this.animate(((EyeWithLegsEntity) entity).idleAnimationState, ModAnimationDefinitions.IDLE, ageInTicks, 1f);
+		this.animate(((EyeWithLegsEntity) entity).attackAnimationState, ModAnimationDefinitions.BITE, ageInTicks, 1f);
 	}
 
 	private void applyHeadRotation(float pNetHeadYaw, float pHeadPitch, float pAgeInTicks) {
