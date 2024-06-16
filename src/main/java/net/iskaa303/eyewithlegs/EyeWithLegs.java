@@ -1,7 +1,16 @@
 package net.iskaa303.eyewithlegs;
 
 import com.mojang.logging.LogUtils;
-import net.minecraft.client.Minecraft;
+import net.iskaa303.eyewithlegs.entity.ModEntities;
+import net.iskaa303.eyewithlegs.entity.client.EyeWithLegsRenderer;
+import net.iskaa303.eyewithlegs.item.ModCreativeModTabs;
+import net.iskaa303.eyewithlegs.item.ModItems;
+import net.minecraft.client.renderer.entity.EntityRenderers;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.PathfinderMob;
+import net.minecraft.world.entity.monster.Monster;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
@@ -18,8 +27,7 @@ import org.slf4j.Logger;
 
 // The value here should match an entry in the META-INF/mods.toml file
 @Mod(EyeWithLegs.MOD_ID)
-public class EyeWithLegs
-{
+public class EyeWithLegs {
     // Define mod id in a common place for everything to reference
     public static final String MOD_ID = "eye_with_legs";
     // Directly reference a slf4j logger
@@ -31,16 +39,21 @@ public class EyeWithLegs
 
         modEventBus.addListener(this::commonSetup);
 
+        ModCreativeModTabs.register(modEventBus);
+
+        ModItems.register(modEventBus);
+
+        ModEntities.register(modEventBus);
+
         MinecraftForge.EVENT_BUS.register(this);
         modEventBus.addListener(this::addCreative);
+
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     }
 
     private void commonSetup(final FMLCommonSetupEvent event)
     {
-        // Some common setup code
-        LOGGER.info("HELLO FROM COMMON SETUP");
-        Config.items.forEach((item) -> LOGGER.info("ITEM >> {}", item.toString()));
+
     }
 
     // Add the example block item to the building blocks tab
@@ -52,7 +65,6 @@ public class EyeWithLegs
     @SubscribeEvent
     public void onServerStarting(ServerStartingEvent event)
     {
-        LOGGER.info("HELLO from server starting");
     }
 
     @Mod.EventBusSubscriber(modid = MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
@@ -61,9 +73,7 @@ public class EyeWithLegs
         @SubscribeEvent
         public static void onClientSetup(FMLClientSetupEvent event)
         {
-            // Some client setup code
-            LOGGER.info("HELLO FROM CLIENT SETUP");
-            LOGGER.info("MINECRAFT NAME >> {}", Minecraft.getInstance().getUser().getName());
+            EntityRenderers.register(ModEntities.EYE_WITH_LEGS.get(), EyeWithLegsRenderer::new);
         }
     }
 }
